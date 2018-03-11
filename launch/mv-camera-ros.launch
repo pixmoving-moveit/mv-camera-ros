@@ -1,0 +1,3 @@
+<launch>
+  <node name="mv_camera_ros_node" pkg="mv_camera_ros" type="mv_camera_ros" output="screen"/>
+</launch>
