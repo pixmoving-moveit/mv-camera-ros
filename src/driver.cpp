@@ -109,11 +109,27 @@ void configure_callback(mv_camera::CameraConfig &config, uint32_t level)
 
 
     double exposure = config.Exposure_time;
-    double gain = config.Left_gain;
+    double gain = config.Gain;
+
+    cv::Vec3b colorGain(config.Red_gain, config.Green_gain, config.Blue_gain);
 
     sCamera->setExposure(exposure);
     sCamera->setGain(gain);
 
+    if (config.Trigger_WB)
+      sCamera->triggerWhiteBalance();
+    else
+    {
+      sCamera->setColorGain(colorGain);
+    }
+
+    bool autoExposureMode = config.Exposure_auto != "Manual";
+    bool autoGainMode = config.Gain_auto != "Manual";
+
+    sCamera->setAutoExposureMode(autoExposureMode);
+
+    std::cout << "AutoExposure: " << autoExposureMode << std::endl;
+    std::cout << "AutoGain: " << autoGainMode << std::endl;
 
     /*
     // Set relative intensity of LEDs.

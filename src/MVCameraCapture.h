@@ -156,6 +156,12 @@ public:
   void setExposure(double value);
   void setGain(double value);
 
+  void setAutoExposureMode(bool value);
+  void setAutoGainMode(bool value);
+
+  void setColorGain(cv::Vec3b colorGain);
+  void triggerWhiteBalance();
+
 
 private:
   /**
@@ -220,6 +226,9 @@ private:
   bool rescale_camera_info_;
 
   unsigned char *rgbBuffer_;
+
+  bool autoExposureOn_ = true;
+  bool autoGainOn_ = true;
 
   /**
    * @brief MVCamera Info

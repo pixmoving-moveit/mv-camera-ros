@@ -143,7 +143,6 @@ void MVCameraCapture::open()
 {
   open(0);
   // CameraSetAeState(hCamera_,FALSE);
-;
 }
 
 bool MVCameraCapture::capture()
@@ -209,15 +208,39 @@ void MVCameraCapture::publish()
 
 void MVCameraCapture::setExposure(double value)
 {
-  //CameraSetExposureTime(hCamera_, value);
-  CameraSetAeTarget(hCamera_, value);
+  if (autoExposureOn_)
+    CameraSetAeTarget(hCamera_, value);
+  else
+    CameraSetExposureTime(hCamera_, value);
+
 }
 
 void MVCameraCapture::setGain(double value)
 {
   //CameraSetGain(hCamera_, value, value, value);
+  if (!autoGainOn_)
+    CameraSetAnalogGain(hCamera_, value);
+}
 
-  CameraSetAnalogGain(hCamera_, value);
+void MVCameraCapture::setAutoExposureMode(bool value)
+{
+  autoExposureOn_ = value;
+  CameraSetAeState(hCamera_, autoExposureOn_);
+}
+
+void MVCameraCapture::setAutoGainMode(bool value)
+{
+  autoGainOn_ = value;
+}
+
+void MVCameraCapture::setColorGain(cv::Vec3b colorGain)
+{
+  CameraSetGain(hCamera_, colorGain[0], colorGain[1], colorGain[2]);
+}
+
+void MVCameraCapture::triggerWhiteBalance()
+{
+  CameraSetOnceWB(hCamera_);
 }
 
 bool MVCameraCapture::setPropertyFromParam(int property_id, const std::string &param_name)
