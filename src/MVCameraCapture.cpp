@@ -3,6 +3,7 @@
 
 #include "MVCameraCapture.h"
 
+
 namespace cv_camera
 {
 
@@ -102,7 +103,7 @@ void MVCameraCapture::open(int32_t device_id)
 
   if(iStatus!=CAMERA_STATUS_SUCCESS)
   {
-    std::stringstream stream;		
+    std::stringstream stream;
     stream << "device_id" << device_id << " cannot be opened";
     throw DeviceError(stream.str());
   }
@@ -110,6 +111,14 @@ void MVCameraCapture::open(int32_t device_id)
   CameraGetCapability(hCamera_,&tCapability);
   std::cout << "buffer size" <<  tCapability.sResolutionRange.iHeightMax*tCapability.sResolutionRange.iWidthMax*3 << std::endl;
   rgbBuffer_ = (unsigned char*)malloc(tCapability.sResolutionRange.iHeightMax*tCapability.sResolutionRange.iWidthMax*3);
+
+
+  tSdkImageResolution psCurVideoSize;
+
+  CameraGetImageResolution(hCamera_, &psCurVideoSize);
+  psCurVideoSize.iWidthZoomHd = 1024;
+  psCurVideoSize.iHeightZoomHd = 1024;
+ CameraSetImageResolution(hCamera_, &psCurVideoSize);
 
   CameraPlay(hCamera_);
 
@@ -133,6 +142,8 @@ void MVCameraCapture::open(int32_t device_id)
 void MVCameraCapture::open()
 {
   open(0);
+  // CameraSetAeState(hCamera_,FALSE);
+;
 }
 
 bool MVCameraCapture::capture()
@@ -141,7 +152,18 @@ bool MVCameraCapture::capture()
   if(CameraGetImageBuffer(hCamera_, &frameInfo_,&pbyBuffer,1000) == CAMERA_STATUS_SUCCESS)
   {
     CameraImageProcess(hCamera_, pbyBuffer, rgbBuffer_, &frameInfo_);
+    //char *buffer = (char *)malloc(2048 * 2048 * 3);
+    //memcpy(rgbBuffer_, buffer, 2048 * 2048 * 3);
     bridge_.image = cv::Mat(frameInfo_.iHeight, frameInfo_.iWidth, CV_8UC3, rgbBuffer_, cv::Mat::AUTO_STEP);
+
+     // std::cout << bridge_.image.rows << std::endl;
+    cv::resize(bridge_.image, bridge_.image, cv::Size(1024, 1024));
+
+    //bridge_.image = image;
+
+    //cv::imshow("iamge", image);
+    //cv::waitKey(30);
+
     ros::Time now = ros::Time::now();
     bridge_.encoding = enc::BGR8;
     bridge_.header.stamp = now;
@@ -183,6 +205,19 @@ bool MVCameraCapture::capture()
 void MVCameraCapture::publish()
 {
   pub_.publish(*getImageMsgPtr(), info_);
+}
+
+void MVCameraCapture::setExposure(double value)
+{
+  //CameraSetExposureTime(hCamera_, value);
+  CameraSetAeTarget(hCamera_, value);
+}
+
+void MVCameraCapture::setGain(double value)
+{
+  //CameraSetGain(hCamera_, value, value, value);
+
+  CameraSetAnalogGain(hCamera_, value);
 }
 
 bool MVCameraCapture::setPropertyFromParam(int property_id, const std::string &param_name)

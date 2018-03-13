@@ -152,6 +152,11 @@ public:
    */
   bool setPropertyFromParam(int property_id, const std::string &param_name);
 
+
+  void setExposure(double value);
+  void setGain(double value);
+
+
 private:
   /**
    * @brief rescale camera calibration to another resolution

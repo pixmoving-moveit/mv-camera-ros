@@ -1,3 +1,4 @@
 <launch>
+  <remap from=mv_camera_ros_node/image/raw" to="/image_raw" />
   <node name="mv_camera_ros_node" pkg="mv_camera_ros" type="mv_camera_ros" output="screen"/>
 </launch>
