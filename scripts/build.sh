@@ -1,2 +1,2 @@
-. /opt/ros/indigo/setup.bash
+. /opt/ros/kinetic/setup.bash
 catkin_make
